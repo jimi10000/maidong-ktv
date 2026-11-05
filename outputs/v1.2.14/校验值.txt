@@ -33,16 +33,32 @@ SHA256: 36e19713e797d44686104fb91668d65d8ed57a0984eb058037743c590ecab0ec
  12. 新 release keystore 及版本升级；README、注释与代码对齐
  13. 新增回归脚本 outputs/selftest_ktv_api.js（node 直接跑，REAL=1 加真网取链）
 
-发布步骤（需老板在 GitHub 网页操作，本地无创建 Release 权限）:
-  1. 新建 Release，tag = v1.2.14，标题 = 麦动KTV v1.2.14
-  2. 上传本 APK 作为附件；同时把 APK 和 song-hosts.json 放进仓库
-     （github.com 主域附件直链在本机超时，raw.githubusercontent.com 正常）
-  3. 在 Release 说明里写以下两行（配置行不会展示给用户）:
-     apk-url: https://raw.githubusercontent.com/jimi10000/maidong-ktv/main/outputs/v1.2.14/maidong-ktv-v1.2.14-com.fenghuolun.ktv.apk
+✅ 已发布（2026-11-05 19:15，本机通过 Windows 凭据管理器中的 GitHub PAT 完成）:
+  Release 页面: https://github.com/jimi10000/maidong-ktv/releases/tag/v1.2.14
+  Release ID  : 435073830   tag = v1.2.14   非草稿 / 非预发布
+  附件        : maidong-ktv-v1.2.14-com.fenghuolun.ktv.apk (13372298 bytes, state=uploaded)
+  仓库提交    : a9fc102（只新增 4 个文件：song-hosts.json、APK、校验值.txt、回归脚本；
+               未改动仓库内原有的 Base64 文件，远端形态保持不变）
+  远程换源    : https://raw.githubusercontent.com/jimi10000/maidong-ktv/main/song-hosts.json 已 200 生效
+  Release 说明里两行配置（程序读取、不展示给用户）:
+     apk-url: https://gitee.com/jimi10000/maidong-ktv-release/releases/download/v1.2.14/maidong-ktv-v1.2.14-com.fenghuolun.ktv.apk
      apk-sha256: 36e19713e797d44686104fb91668d65d8ed57a0984eb058037743c590ecab0ec
-  4. ⚠️ 新签名与线上 v1.2.13 不同，无法覆盖安装；旧用户需卸载重装，
-     歌曲在 /sdcard/MaidongKTV/songs 不会丢，重装后「本地扫描」找回。
-  5. ⚠️ 本机工作树是解码明文、远端仓库是 Base64 形态，push 前需老板确认策略。
+
+✅ 国内下载镜像（2026-11-05 19:26 追加，仅改 Release 说明，未重新发版/打包）:
+  仓库      : https://gitee.com/jimi10000/maidong-ktv-release （公开，仅发行版附件，不含源码）
+  发行版    : tag v1.2.14 / release ID 1276797 / 附件 ID 3602561（单附件 13372298 bytes）
+  下载链路  : releases/download/... → 302 → attach_files/3602561/download/... → 302 → foruda.gitee.com CDN
+  匿名实测  : HTTP 200，13372298 bytes，6.5 秒（约 2 MB/s），SHA-256 与本地交付包完全一致
+  ⚠️ Gitee「仓库 raw 大文件」匿名会 403（large file require login for access），
+     只有「发行版附件」这条链路可匿名下载；以后升级沿用该仓库、换 tag 即可。
+  GitHub 附件仍保留作备份；GitHub raw 大文件国内约 30KB/s 且会截断，已不再作为下载源。
+
+⚠️ 升级注意事项:
+  - 新签名与线上 v1.2.13 不同，无法覆盖安装；旧用户需卸载重装，
+    歌曲在 /sdcard/MaidongKTV/songs 不会丢，重装后「本地扫描」找回。
+  - 旧装机版的「检查更新」是死的，且包内仍是死源，必须手动装一次 1.2.14。
+  - 应用内更新的下载源已切到 Gitee 国内镜像，正常情况下数秒完成；
+    万一链路异常，App 的 SHA-256 校验会拦下不完整包并提示重试，不会误装。
 
 验证记录:
   - Gradle 8.14 assembleRelease BUILD SUCCESSFUL（本轮两次，零错误）
@@ -53,3 +69,8 @@ SHA256: 36e19713e797d44686104fb91668d65d8ed57a0984eb058037743c590ecab0ec
   - REAL=1 真网取链 PASS：do.php 返回 txog.ktvsky.com/.../7678785.ts（非 poison），源站当前存活
   - MuMu 模拟器 install -r Success，启动 pid 正常，versionName=1.2.14，
     arm64 三件套齐全，FATAL EXCEPTION 0
+  - 线上端到端：GET /releases/latest = 200，tag v1.2.14、附件 1 个、apk-url 与 apk-sha256 解析成功、
+    配置行不进弹窗；版本比对 1.2.14→不提示 / 1.2.13→会提示（符合预期）
+  - raw 上 song-hosts.json = 200、APK HEAD = 200 / 13372298 bytes / application/octet-stream
+  - 切 Gitee 镜像后复验：/releases/latest 解析出的 apkUrl 指向 gitee.com，HTTPS、notes 无配置行；
+    用该 URL 匿名完整下载 13372298 bytes / 6.5s / 2 MB/s，SHA-256 = 交付包值，MATCH
