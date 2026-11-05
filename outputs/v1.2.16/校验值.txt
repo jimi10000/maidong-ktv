@@ -1,0 +1,58 @@
+麦动KTV v1.2.16 交付校验记录
+================================
+生成时间: 2026-11-05 20:20（本机）
+
+文件: maidong-ktv-v1.2.16-com.fenghuolun.ktv.apk
+大小: 13,372,324 bytes
+MD5: d4be7b46bed04c0b4a72906eb3cd7da4
+SHA-256: 39644472b25b24393a5494862a5890e0fa763cf9b8d2a41666cee37bade87cc0
+
+版本: versionCode 17 / versionName 1.2.16
+包名: com.fenghuolun.ktv
+签名: 与 v1.2.14 / v1.2.15 相同（2026-11-05 新建 keystore），可直接覆盖安装；
+      v1.2.13 及更早版本签名不同，需卸载后重装。
+
+本版改动（专门修车机启动崩溃）
+--------------------------------
+- 修复哪吒车机 HZEP32 / Android 11 启动必崩：启动时会重建 Activity，
+  旧实例 onDestroy 已 io.shutdownNow()，但曲库初始化 main.post 回调仍提交任务
+  → java.util.concurrent.RejectedExecutionException: Task ... rejected from
+  ThreadPoolExecutor[Terminated ...] → 主进程被杀。
+  实测 v1.2.14 在车机连续 3 次冷启动 100% 复现；MuMu 不触发重建故未暴露。
+- 修法：io / stateIo 从 Activity 实例级改为 companion object 进程级单例，
+  onDestroy 不再 shutdown；initializeDatabase 与 refreshLibrary 的 main.post 回调
+  增加 isFinishing || isDestroyed 守卫。
+- 沿用 v1.2.15：「关于」页改为风火轮车载生态自有信息、设置页版本号跟随实际版本。
+- 沿用 v1.2.14：歌源复活、song-hosts.json 远程换源、应用内更新、
+  安装包 SHA-256 与签名一致性校验、点歌自愈与熔断。
+
+线上发布状态（已发布）
+--------------------------------
+GitHub Release: https://github.com/jimi10000/maidong-ktv/releases/tag/v1.2.16
+  Release ID 435166966，备份附件 13,372,324 bytes / state=uploaded
+Gitee 国内镜像: https://gitee.com/jimi10000/maidong-ktv-release/releases/download/v1.2.16/maidong-ktv-v1.2.16-com.fenghuolun.ktv.apk
+  发行版 ID 1276944，附件 ID 3602925
+
+Release 说明里两行配置（程序读取、不展示给用户）:
+  apk-url: https://gitee.com/jimi10000/maidong-ktv-release/releases/download/v1.2.16/maidong-ktv-v1.2.16-com.fenghuolun.ktv.apk
+  apk-sha256: 39644472b25b24393a5494862a5890e0fa763cf9b8d2a41666cee37bade87cc0
+
+验证结果
+--------------------------------
+- Gradle 8.14 assembleRelease BUILD SUCCESSFUL
+- 包内 7 颗 so 齐全；assets/mobile/ktv_api.js 与源文件逐字节 MATCH
+- dex 内「风火轮车载生态」存在、上游署名「杨家三郎」0 处、apk-sha256 逻辑在
+- 车机 HZEP32: adb install -r Success；versionCode=17 / versionName=1.2.16；
+  pm enable 后连续 3 次冷启动 PID 稳定、FATAL EXCEPTION 0
+- 端到端: GET /releases/latest = 200，tag v1.2.16、apk-url 指向 Gitee、HTTPS、
+  apk-sha256 解析成功、配置行不进弹窗；版本比对 1.2.15→提示 / 1.2.16→不提示
+- 匿名下载: 13,372,324 bytes / 6.6s / 约 2MB/s，SHA-256 与交付包完全一致
+
+车机使用注意
+--------------------------------
+- ⚠️ v1.2.14 / v1.2.15 在 HZEP32 上启动必崩，务必升级到 1.2.16。
+- ⚠️ 车机曾把本包置为 DISABLED_USER（pm list packages -d 可见），
+  表现为 resolve-activity 找不到、图标点不开；已用
+  `adb shell pm enable --user 0 com.fenghuolun.ktv` 恢复，覆盖安装不重置该状态。
+- 车机主屏可能被「哨兵模式」全屏覆盖，App 进程与窗口正常但需切回前台才能看到界面。
+- 旧 v1.2.13 装机版「检查更新」是死的，必须手动装一次 1.2.16，之后才走自动更新。
