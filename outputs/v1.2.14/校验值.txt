@@ -1,0 +1,55 @@
+麦动KTV v1.2.14 正式发布包校验（含「继续优化」轮，2026-11-05 18:26 重编）
+================================================================
+文件: maidong-ktv-v1.2.14-com.fenghuolun.ktv.apk
+大小: 13372298 bytes
+MD5   : 1343abc9c41df49499a61ebe23dc23f8
+SHA256: 36e19713e797d44686104fb91668d65d8ed57a0984eb058037743c590ecab0ec
+
+包名: com.fenghuolun.ktv
+版本: versionName 1.2.14 / versionCode 15
+签名证书 SHA256: 97:53:6C:87:F9:85:6A:47:0D:4F:13:02:13:C9:0C:A4:EB:31:71:67:DB:3E:DE:E2:AE:93:11:1C:20:BD:01:12
+
+本版改动:
+  [歌源复活]
+  1. HOSTS 切至存活节点 mm.kk456.top / gz.ac16.vip（可下真实 KTV ts 视频）
+  2. isDemoUrl 增加 /poison/ 兜底，源站再次停服不再白下 404
+  [应用内更新]
+  3. 接入 api.github.com/repos/jimi10000/maidong-ktv/releases/latest
+  4. 设置内「检查更新」由假提示改为真检查；自动检查 24h 节流（仅成功计时）
+  5. 下载后比对签名证书 SHA-256，不符明确提示需卸载重装
+  [继续优化轮 · 本轮新增]
+  6. 歌源节点支持远程配置：App 后台读取仓库根目录 song-hosts.json 覆盖 hosts，
+     源站再挂时改 JSON 即可换源，无需重新发版；404/离线静默沿用内置 HOSTS。
+     配置只接受纯 http(s) 主机，带路径/非 http/纯 IP 一律拒绝（SSRF 防护）。
+  7. 请求白名单与下载白名单分离（KtvJsBridge）：配置域名只可发起请求，
+     不可被当作歌曲下载地址放行。
+  8. 点歌自愈：最近成功节点优先重试；连续 3 首整轮失败后熔断 60 秒，
+     避免源站全挂时每首歌卡满约 3 分钟。
+  9. DB cloud_url 兜底补齐 /poison/、demo、zk.ktv1.top 死源、短数字文件名校验
+     （原来只查纯 IP/R2，会漏掉停服前缓存的毒丸地址导致白下 404）。
+ 10. 更新包支持 apk-sha256 完整性校验；校验通过的同版本包直接复用不重下；
+     apk-url / apk-sha256 配置行不再显示在更新弹窗里。
+ 11. 补齐仓库缺失的 libijkffmpeg.so（两个 ABI），播放链路完整
+ 12. 新 release keystore 及版本升级；README、注释与代码对齐
+ 13. 新增回归脚本 outputs/selftest_ktv_api.js（node 直接跑，REAL=1 加真网取链）
+
+发布步骤（需老板在 GitHub 网页操作，本地无创建 Release 权限）:
+  1. 新建 Release，tag = v1.2.14，标题 = 麦动KTV v1.2.14
+  2. 上传本 APK 作为附件；同时把 APK 和 song-hosts.json 放进仓库
+     （github.com 主域附件直链在本机超时，raw.githubusercontent.com 正常）
+  3. 在 Release 说明里写以下两行（配置行不会展示给用户）:
+     apk-url: https://raw.githubusercontent.com/jimi10000/maidong-ktv/main/outputs/v1.2.14/maidong-ktv-v1.2.14-com.fenghuolun.ktv.apk
+     apk-sha256: 36e19713e797d44686104fb91668d65d8ed57a0984eb058037743c590ecab0ec
+  4. ⚠️ 新签名与线上 v1.2.13 不同，无法覆盖安装；旧用户需卸载重装，
+     歌曲在 /sdcard/MaidongKTV/songs 不会丢，重装后「本地扫描」找回。
+  5. ⚠️ 本机工作树是解码明文、远端仓库是 Base64 形态，push 前需老板确认策略。
+
+验证记录:
+  - Gradle 8.14 assembleRelease BUILD SUCCESSFUL（本轮两次，零错误）
+  - aapt: versionName 1.2.14 / versionCode 15 / 包名 com.fenghuolun.ktv
+  - 包内 ktv_api.js 与源文件逐字节 MATCH；7 颗 so 齐全；dex 命中
+    apk-sha256 / raw.githubusercontent.com / releases/latest / 签名校验文案
+  - 回归自测 10/10 PASS（配置兜底、恶意 host 过滤、熔断、成功节点优先）
+  - REAL=1 真网取链 PASS：do.php 返回 txog.ktvsky.com/.../7678785.ts（非 poison），源站当前存活
+  - MuMu 模拟器 install -r Success，启动 pid 正常，versionName=1.2.14，
+    arm64 三件套齐全，FATAL EXCEPTION 0
